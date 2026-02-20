@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="og:title" content="Terrorist Attack Prediction Results">
+  <meta name="author" content="Venkata Sreeram">
+  <meta name="og:image" content="static/logo1.png">
+  <meta name="Keywords" content="Flask, Machine Learning, Deep Learning, Artificial Intelligence, AI, ML,DL, Web Development">
+  <meta name="description" content="Terrorist Attack Prediction Results">
+  <title>Attack Prediction Results</title>
+  <link rel="icon" href="{{ url_for('static', filename = 'logo1.png') }}" type="image/icon type">
+  
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    :root {
+      --primary-color: #e63946;
+      --secondary-color: #1d3557;
+      --accent-color: #a8dadc;
+      --dark-color: #0b132b;
+      --light-color: #f1faee;
+      --danger-color: #d90429;
+      --safe-color: #2b9348;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)), 
+                  url('https://media.istockphoto.com/id/135786349/vector/rebel-insurgent-fighter-in-hiding.jpg?s=612x612&w=0&k=20&c=y35BGPhbZKcaXNMjLbYifQ9K_0XjUFxDWrAexZeoVlY=');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: var(--light-color);
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background-color: rgba(13, 27, 42, 0.95) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .nav-link {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+      transform: translateY(-2px);
+    }
+    
+    .result-container {
+      margin-top: 100px;
+      margin-bottom: 50px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    
+    .result-card {
+      background: rgba(29, 53, 87, 0.85);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(168, 218, 220, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .result-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    
+    .status-display {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      animation: pulse 1.5s infinite;
+    }
+    
+    .status-danger {
+      color: var(--danger-color);
+    }
+    
+    .status-safe {
+      color: var(--safe-color);
+    }
+    
+    .btn-recheck {
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 25px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      margin: 20px 0;
+      box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .btn-recheck:hover {
+      background-color: #c1121f;
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(230, 57, 70, 0.6);
+    }
+    
+    .btn-recheck:active {
+      transform: translateY(1px);
+    }
+    
+    .map-container {
+      margin-top: 40px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(168, 218, 220, 0.3);
+    }
+    
+    .map-frame {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    
+    .btn-map {
+      background-color: var(--secondary-color);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+    
+    .btn-map:hover {
+      background-color: #14213d;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .result-icon {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      animation: bounceIn 1s ease;
+    }
+    
+    .danger-icon {
+      color: var(--danger-color);
+    }
+    
+    .safe-icon {
+      color: var(--safe-color);
+    }
+    
+    .result-description {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <i class="fas fa-shield-alt mr-2"></i>Terrorist Attack Prediction
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('fetalPage') }}">
+              <i class="fas fa-bullseye mr-1"></i>Prediction
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">
+              <i class="fas fa-sign-out-alt mr-1"></i>Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container result-container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="result-card text-center">
+          <!-- Result Icon -->
+          {% if "successful" in status.lower() %}
+          <i class="fas fa-exclamation-triangle result-icon danger-icon animate__animated animate__pulse animate__infinite"></i>
+          {% else %}
+          <i class="fas fa-check-circle result-icon safe-icon"></i>
+          {% endif %}
+          
+          <!-- Status Display -->
+          <div class="status-display {% if 'danger' in status.lower() %}status-danger{% else %}status-safe{% endif %} animate__animated animate__fadeIn">
+            STATUS: {{status}}!
+          </div>
+          
+          <!-- Result Description -->
+          <div class="result-description animate__animated animate__fadeIn animate__delay-1s">
+            {% if "successful" in status.lower() %}
+            <p>Our analysis indicates a high probability of terrorist activity based on the provided parameters. Please exercise extreme caution.</p>
+            {% else %}
+            <p>Our analysis indicates a low probability of terrorist activity based on the provided parameters. Remain vigilant.</p>
+            {% endif %}
+          </div>
+          
+          <!-- Recheck Button -->
+          <div class="animate__animated animate__fadeIn animate__delay-2s">
+            <a href="{{ url_for('fetalPage') }}" class="btn btn-recheck">
+              <i class="fas fa-redo mr-2"></i>Perform New Analysis
+            </a>
+          </div>
+        </div>
+        
+        <!-- Map Display (if available) -->
+        {% if map_var %}
+        <div class="map-container mt-5 animate__animated animate__fadeIn animate__delay-1s">
+          <iframe src="{{ url_for('static', filename='route_map.html') }}" class="map-frame"></iframe>
+          <div class="text-center mt-3">
+            <a href="{{ url_for('static', filename='route_map.html') }}" class="btn btn-map" target="_blank">
+              <i class="fas fa-external-link-alt mr-2"></i>Open Map in New Tab
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  
+  <script>
+    // Add animation to elements
+    $(document).ready(function() {
+      // Smooth scroll for anchor links
+      $('a[href^="#"]').on('click', function(event) {
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+          event.preventDefault();
+          $('html, body').stop().animate({
+            scrollTop: target.offset().top - 70
+          }, 1000);
+        }
+      });
+      
+      // Add animation to danger status
+      {% if "danger" in status.lower() %}
+      setInterval(function() {
+        $('.danger-icon').toggleClass('animate__shakeX');
+      }, 3000);
+      {% endif %}
+    });
+  </script>
+</body>
+</html>

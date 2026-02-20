@@ -1,0 +1,279 @@
+{% extends 'main.html' %}
+{% block content %}
+{% if message %}
+<div class="alert alert-danger alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+  {{ message }}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+{% endif %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Terrorist Attack Prediction</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
+    :root {
+      --primary-color: #e63946;
+      --secondary-color: #1d3557;
+      --accent-color: #a8dadc;
+      --dark-color: #0b132b;
+      --light-color: #f1faee;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)), 
+                  url('https://i.makeagif.com/media/10-29-2015/M1Tg3w.gif');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: var(--light-color);
+    }
+    
+    .hero-section {
+      padding: 120px 0;
+      background: rgba(29, 53, 87, 0.7);
+      backdrop-filter: blur(5px);
+      border-bottom: 1px solid rgba(168, 218, 220, 0.2);
+    }
+    
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      margin-bottom: 20px;
+    }
+    
+    .feature-card {
+      background: rgba(29, 53, 87, 0.7);
+      border-radius: 15px;
+      border: 1px solid rgba(168, 218, 220, 0.2);
+      backdrop-filter: blur(5px);
+      padding: 30px;
+      height: 100%;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      border-color: var(--primary-color);
+    }
+    
+    .feature-icon {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border: 3px solid var(--primary-color);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon {
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+    }
+    
+    .feature-title {
+      color: var(--accent-color);
+      font-weight: 600;
+      margin: 20px 0 15px;
+    }
+    
+    .feature-text {
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    
+    .divider {
+      border-top: 2px dashed rgba(168, 218, 220, 0.3);
+      margin: 60px auto;
+      width: 80%;
+    }
+    
+    .how-it-works {
+      background: rgba(13, 27, 42, 0.8);
+      padding: 60px 0;
+      border-radius: 15px;
+      margin: 40px 0;
+      border: 1px solid rgba(168, 218, 220, 0.2);
+    }
+    
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title:after {
+      content: '';
+      position: absolute;
+      width: 50%;
+      height: 3px;
+      background: var(--primary-color);
+      bottom: -10px;
+      left: 0;
+    }
+    
+    .accuracy-badge {
+      background: var(--primary-color);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 50px;
+      font-weight: 600;
+      display: inline-block;
+      margin: 10px 0;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .btn-explore {
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 30px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+    }
+    
+    .btn-explore:hover {
+      background-color: #c1121f;
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(230, 57, 70, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+<main role="main">
+  <!-- Hero Section -->
+  <section class="hero-section text-center animate__animated animate__fadeIn">
+    <div class="container">
+      <h1 class="hero-title display-4">TERRORIST ATTACK PREDICTION</h1>
+      <p class="lead">Advanced machine learning system for detecting and predicting potential terrorist activities</p>
+      <a href="{{ url_for('fetalPage') }}" class="btn btn-explore animate__animated animate__fadeInUp animate__delay-1s">
+        <i class="fas fa-bullseye mr-2"></i>TRY THE PREDICTOR
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <div class="container marketing py-5">
+    <div class="row">
+      <!-- Feature 1 -->
+      <div class="col-lg-6 mb-4 animate__animated animate__fadeInLeft">
+        <div class="feature-card text-center">
+          <img class="feature-icon rounded-circle animate__animated animate__zoomIn" src="https://cdnb.artstation.com/p/assets/images/images/034/452/815/original/jeong-h-lee-ezgif-com-resize-1.gif?1612330437" alt="Attack visualization">
+          <h2 class="feature-title">ABOUT ATTACKS</h2>
+          <p class="feature-text">Our system analyzes patterns in terrorist activities worldwide, identifying key indicators and trends that help predict potential future attacks with high accuracy.</p>
+        </div>
+      </div>
+      
+      <!-- Feature 2 -->
+      <div class="col-lg-6 mb-4 animate__animated animate__fadeInRight">
+        <div class="feature-card text-center">
+          <img class="feature-icon rounded-circle animate__animated animate__zoomIn animate__delay-1s" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiN2KPoea9rFZo4nb0SZKrBrEUjNv-xaqB7gF6Htl5lY5AtOmKH1yFalD9Y6XHNNgtUYqsJCPUr-7a4MJIvdcubXogxerrskVqKfQGhKSpUyrnroLhEi6P5vMXqYE22J3_dnLRuWiBv5Nw/s0/Random+Forest+03.gif" alt="Algorithm visualization">
+          <h2 class="feature-title">ADVANCED ALGORITHM</h2>
+          <p class="feature-text">We utilize Weighted KNN, an ensemble machine learning technique that combines multiple decision trees to improve prediction accuracy and reduce overfitting.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Feature 3 -->
+      <div class="col-lg-6 mb-4 animate__animated animate__fadeInLeft animate__delay-1s">
+        <div class="feature-card text-center">
+          <img class="feature-icon rounded-circle animate__animated animate__zoomIn animate__delay-2s" src="https://media0.giphy.com/media/wgHY9nSrlTMt2/200w.gif?cid=82a1493br8fdm6cny52mhxf2onrocfcvyiqnavgf6j8pelq6&ep=v1_gifs_related&rid=200w.gif&ct=g" alt="Efficiency visualization">
+          <h2 class="feature-title">SYSTEM EFFICIENCY</h2>
+          <p class="feature-text">Our predictive model achieves outstanding performance metrics in identifying potential threats.</p>
+          <div class="accuracy-badge">94% ACCURACY</div>
+        </div>
+      </div>
+      
+      <!-- Feature 4 -->
+      <div class="col-lg-6 mb-4 animate__animated animate__fadeInRight animate__delay-1s">
+        <div class="feature-card text-center">
+          <img class="feature-icon rounded-circle animate__animated animate__zoomIn animate__delay-3s" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXkstYYosO6qgfRhVbNB6DzEQj8D3rRvh34Ww020owb_UCj9I87hB8NB4BKnUs3vZHPB4&usqp=CAU" alt="Dataset visualization">
+          <h2 class="feature-title">COMPREHENSIVE DATASET</h2>
+          <p class="feature-text">We've analyzed over 1,356 documented terrorist attacks across multiple categories, regions, and time periods to build our predictive models.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="container">
+    <div class="how-it-works animate__animated animate__fadeIn">
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
+          <h2 class="section-title text-center">HOW IT WORKS</h2>
+          <p class="lead text-center" style="line-height: 1.8;">
+            Our system combines advanced machine learning with comprehensive global terrorism data to predict potential attacks. 
+            The platform processes historical attack patterns, geographical data, and temporal trends to identify high-risk scenarios. 
+            Security professionals can input specific parameters to receive real-time risk assessments and predictive analytics, 
+            enabling proactive threat mitigation. The system continuously learns from new data, improving its predictive accuracy over time.
+          </p>
+          <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-explore">
+              <i class="fas fa-rocket mr-2"></i>LAUNCH PREDICTOR
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Bootstrap core JavaScript -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+  // Animation triggers when elements come into view
+  $(document).ready(function() {
+    $(window).scroll(function() {
+      $('.feature-card').each(function() {
+        var position = $(this).offset().top;
+        var scroll = $(window).scrollTop();
+        var windowHeight = $(window).height();
+        
+        if (scroll > position - windowHeight + 200) {
+          $(this).addClass('animate__fadeInUp');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
+
+{% endblock %}

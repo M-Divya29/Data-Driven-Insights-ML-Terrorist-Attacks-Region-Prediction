@@ -1,0 +1,5 @@
+globalterrorismdb.csv
+*.pkl
+*.db
+.ipynb_checkpoints/
+__pycache__/

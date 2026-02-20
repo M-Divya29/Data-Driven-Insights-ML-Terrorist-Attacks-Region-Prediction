@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Terrorist Attack Prediction</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="og:title" content="Terrorist Attack Prediction">
+  <meta name="author" content="Venkata Sreeram">
+  <meta name="og:image" content="static/logo1.png">
+  <meta name="Keywords" content="Security, Threat Analysis, Safety, Web Development">
+  <meta name="description" content="A threat analysis system for predicting potential terrorist attack zones.">
+  <link rel="icon" href="{{ url_for('static', filename = 'logo1.png') }}" type="image/icon type">
+  
+  <!-- Bootstrap & Font Awesome -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  
+  <!-- Animate.css for smooth animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #e74c3c;
+      --accent-color: #3498db;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: var(--light-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .navbar {
+      background-color: rgba(0, 0, 0, 0.8) !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    
+    .container {
+      padding-top: 80px;
+      max-width: 600px;
+    }
+    
+    .auth-form {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.5s ease;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+    
+    .auth-form:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-title {
+      color: white;
+      margin-bottom: 25px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .form-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: var(--secondary-color);
+    }
+    
+    .form-control {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 30px;
+      color: white;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      background-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+      color: white;
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .btn-auth {
+      background: var(--secondary-color);
+      border: none;
+      border-radius: 30px;
+      padding: 12px 30px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    .btn-auth:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+    
+    .toggle-link {
+      color: var(--accent-color);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    
+    .toggle-link:hover {
+      color: #2980b9;
+      text-decoration: none;
+    }
+    
+    .user-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--secondary-color);
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    
+    .user-avatar:hover {
+      transform: rotate(10deg) scale(1.1);
+    }
+    
+    .security-features {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .feature-icon {
+      color: var(--accent-color);
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+    
+    /* Animation classes */
+    .form-enter {
+      animation: fadeInUp 0.5s both;
+    }
+    
+    .form-exit {
+      animation: fadeOutDown 0.5s both;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        padding: 80px 20px;
+      }
+      
+      .auth-form {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <i class="fas fa-shield-alt"></i> ThreatSecure
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}"><i class="fas fa-home"></i> Home</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ url_for('index') }}"><i class="fas fa-user"></i> User Portal</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  {% if msg %}
+  <div class="container mt-5">
+    <div class="alert alert-warning alert-dismissible fade show animate__animated animate__fadeInDown">
+      {{ msg }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span>&times;</span>
+      </button>
+    </div>
+  </div>
+  {% endif %}
+  <br><br><br><br><br><br><br>
+  <div class="container">
+    <!-- Login Form -->
+    <form method="post" action="{{ url_for('userlog')}}" id="form1" class="auth-form animate__animated animate__fadeIn">
+      <div class="text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/5087/5087579.png" class="user-avatar pulse" alt="User Avatar">
+        <h2 class="form-title">User Login</h2>
+      </div>
+      
+      <div class="form-group">
+        <label for="username"><i class="fas fa-user"></i> Username</label>
+        <input type="text" class="form-control" id="username" placeholder="Enter your username" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password"><i class="fas fa-lock"></i> Password</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="password" placeholder="Enter your password" name="password" required>
+          <div class="input-group-append">
+            <span class="input-group-text" style="background: rgba(255,255,255,0.1); border: none;">
+              <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="rememberMe">
+        <label class="form-check-label" for="rememberMe">Remember me</label>
+      </div>
+      
+      <button type="submit" class="btn btn-auth">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+      
+      <div class="text-center mt-3">
+        <p>Don't have an account? <span class="toggle-link" data-target="#form2">Register here</span></p>
+        <p><a href="#" class="text-muted">Forgot password?</a></p>
+      </div>
+      
+      <div class="security-features">
+        <h6><i class="fas fa-shield-alt"></i> Secure Login</h6>
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+          <span>256-bit SSL Encryption</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+          <span>Multi-factor Authentication Ready</span>
+        </div>
+      </div>
+    </form>
+
+    <!-- Registration Form -->
+    <form method="post" action="{{ url_for('userreg')}}" id="form2" class="auth-form animate__animated" style="display: none;">
+      <div class="text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/4406/4406259.png" class="user-avatar pulse" alt="User Avatar">
+        <h2 class="form-title">User Registration</h2>
+      </div>
+      
+      <div class="form-group">
+        <label for="regUsername"><i class="fas fa-user"></i> Username</label>
+        <input type="text" class="form-control" id="regUsername" placeholder="Choose a username" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+        <input type="email" class="form-control" id="email" placeholder="Enter your email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="phone"><i class="fas fa-phone"></i> Mobile Number</label>
+        <input type="tel" class="form-control" id="phone" placeholder="Enter mobile number" name="phone" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="regPassword"><i class="fas fa-lock"></i> Password</label>
+        <div class="input-group">
+          <input type="password" class="form-control" id="regPassword" placeholder="Create a password" name="password" required>
+          <div class="input-group-append">
+            <span class="input-group-text" style="background: rgba(255,255,255,0.1); border: none;">
+              <i class="fas fa-eye" id="toggleRegPassword" style="cursor: pointer;"></i>
+            </span>
+          </div>
+        </div>
+        <small class="form-text text-muted">Use 8 or more characters with a mix of letters, numbers & symbols</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
+      </div>
+      
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="termsCheck" required>
+        <label class="form-check-label" for="termsCheck">I agree to the <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a></label>
+      </div>
+      
+      <button type="submit" class="btn btn-auth">
+        <i class="fas fa-user-plus"></i> Register
+      </button>
+      
+      <div class="text-center mt-3">
+        <p>Already have an account? <span class="toggle-link" data-target="#form1">Login here</span></p>
+      </div>
+      
+      <div class="security-features">
+        <h6><i class="fas fa-shield-alt"></i> Your Security Matters</h6>
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+          <span>All data encrypted at rest and in transit</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon"><i class="fas fa-check-circle"></i></span>
+          <span>Regular security audits</span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      // Toggle password visibility
+      $('#togglePassword').click(function() {
+        const password = $('#password');
+        const type = password.attr('type') === 'password' ? 'text' : 'password';
+        password.attr('type', type);
+        $(this).toggleClass('fa-eye fa-eye-slash');
+      });
+      
+      $('#toggleRegPassword').click(function() {
+        const password = $('#regPassword');
+        const type = password.attr('type') === 'password' ? 'text' : 'password';
+        password.attr('type', type);
+        $(this).toggleClass('fa-eye fa-eye-slash');
+      });
+      
+      // Form toggle functionality
+      $('.toggle-link').click(function(e) {
+        e.preventDefault();
+        const target = $(this).data('target');
+        
+        // Animate out current form
+        if (target === '#form2') {
+          $('#form1').removeClass('animate__fadeIn').addClass('animate__fadeOut');
+          setTimeout(() => {
+            $('#form1').hide().removeClass('animate__fadeOut');
+            $('#form2').show().addClass('animate__fadeIn');
+          }, 500);
+        } else {
+          $('#form2').removeClass('animate__fadeIn').addClass('animate__fadeOut');
+          setTimeout(() => {
+            $('#form2').hide().removeClass('animate__fadeOut');
+            $('#form1').show().addClass('animate__fadeIn');
+          }, 500);
+        }
+      });
+      
+      // Form validation
+      $('#form2').submit(function(e) {
+        if ($('#regPassword').val() !== $('#confirmPassword').val()) {
+          e.preventDefault();
+          alert('Passwords do not match!');
+          $('#regPassword, #confirmPassword').addClass('is-invalid');
+        }
+        
+        if (!$('#termsCheck').is(':checked')) {
+          e.preventDefault();
+          alert('You must agree to the terms and conditions');
+        }
+      });
+      
+      // Add animation to form elements on focus
+      $('.form-control').focus(function() {
+        $(this).parent().addClass('animate__animated animate__pulse');
+      }).blur(function() {
+        $(this).parent().removeClass('animate__animated animate__pulse');
+      });
+    });
+  </script>
+</body>
+</html>
