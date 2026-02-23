@@ -1,41 +1,46 @@
-from flask import Flask, render_template, request, flash, redirect
+from flask import Flask, render_template, request
 import sqlite3
-import pickle
+import joblib
 import numpy as np
 import os
 import requests
 from RouteMap import GetMap
-dsatm=[12.825251, 77.514417]
 
+dsatm = [12.825251, 77.514417]
 
 app = Flask(__name__)
 
-import joblib
-
-# Load the trained model from the file
-# model_path = os.path.join(os.path.dirname(__file__), 'model', 'last.pkl')
+# Path to store the model
 model_path = "model/last.pkl"
+os.makedirs("model", exist_ok=True)
 
+# Google Drive direct download link
+gdrive_url = "https://drive.google.com/uc?export=download&id=1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON"
+
+# Download the model if it doesn't exist
 if not os.path.exists(model_path):
-    os.makedirs("model", exist_ok=True)
-    url = "https://drive.google.com/uc?export=download&id=1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON"
-    r = requests.get(url)
-    with open(model_path, "wb") as f:
-        f.write(r.content)
+    print("Model not found. Downloading from Google Drive...")
+    r = requests.get(gdrive_url)
+    if r.status_code == 200:
+        with open(model_path, "wb") as f:
+            f.write(r.content)
+        print("Model downloaded successfully.")
+    else:
+        raise Exception(f"Failed to download model. Status code: {r.status_code}")
+
+# Load the trained model
 rfc = joblib.load(model_path)
-    
+
 api_key = os.environ.get("WEATHER_API_KEY")
 
 def get_weather(api_key, location):
-    print("ENTERED API")
     url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={location}"
     response = requests.get(url)
-    data = response.json()
     if response.status_code == 200:
+        data = response.json()
         return data['location']['lat'], data['location']['lon']
     else:
         return None
-    
 
 @app.route('/')
 def home():
@@ -48,66 +53,45 @@ def index():
 @app.route('/userlog', methods=['GET', 'POST'])
 def userlog():
     if request.method == 'POST':
-
         connection = sqlite3.connect('user_data.db')
         cursor = connection.cursor()
-
         name = request.form['name']
         password = request.form['password']
-
-        query = "SELECT name, password FROM user WHERE name = ? AND password = ?"
-        cursor.execute(query, (name, password))
-
+        cursor.execute("SELECT name, password FROM user WHERE name = ? AND password = ?", (name, password))
         result = cursor.fetchall()
-
+        connection.close()
         if result:
-            return render_template('fetal.html') 
+            return render_template('fetal.html')
         else:
-            return render_template('index.html', msg='Sorry, Incorrect Credentials Provided,  Try Again')
-
+            return render_template('index.html', msg='Sorry, Incorrect Credentials Provided, Try Again')
     return render_template('index.html')
-
 
 @app.route('/userreg', methods=['GET', 'POST'])
 def userreg():
     if request.method == 'POST':
-
         connection = sqlite3.connect('user_data.db')
         cursor = connection.cursor()
-
         name = request.form['name']
         password = request.form['password']
         mobile = request.form['phone']
         email = request.form['email']
-        
-        print(name, mobile, email, password)
-
-        command = """CREATE TABLE IF NOT EXISTS user(name TEXT, password TEXT, mobile TEXT, email TEXT)"""
-        cursor.execute(command)
-
-        cursor.execute(
-    "INSERT INTO user VALUES (?, ?, ?, ?)",
-    (name, password, mobile, email)
-)
+        cursor.execute("""CREATE TABLE IF NOT EXISTS user(
+                          name TEXT, password TEXT, mobile TEXT, email TEXT)""")
+        cursor.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (name, password, mobile, email))
         connection.commit()
-
+        connection.close()
         return render_template('index.html', msg='Successfully Registered')
-    
     return render_template('index.html')
 
 @app.route('/logout')
 def logout():
     return render_template('index.html')
 
-
 @app.route("/fetalPage", methods=['GET', 'POST'])
 def fetalPage():
-    return render_template('fetal.html') 
+    return render_template('fetal.html')
 
-
-
-
-@app.route("/predict", methods = ['POST', 'GET'])
+@app.route("/predict", methods=['POST', 'GET'])
 def predictPage():
     if request.method == 'POST':
         year = request.form['year']
@@ -115,12 +99,10 @@ def predictPage():
         date = request.form['date']
         location = request.form['location']
         tolocation = request.form['tolocation']
-        coord=location.split(',')
-        tocoord=tolocation.split(',')
-        lat,long=coord[0],coord[1]
-        
 
-        
+        coord = location.split(',')
+        tocoord = tolocation.split(',')
+        lat, long = coord[0], coord[1]
 
         multiple = request.form['multiple']
         attack = request.form['attack']
@@ -128,7 +110,8 @@ def predictPage():
         ind = request.form['ind']
         casualties = request.form['casualties']
         weapon = request.form['weapon']
-        map_var = GetMap(coord,tocoord)
+
+        map_var = GetMap(coord, tocoord)
 
         try:
             data = np.array([[ 
@@ -146,15 +129,14 @@ def predictPage():
             ]])
             my_prediction = rfc.predict(data)
             result = my_prediction[0]
-            
-            if result ==1:
-                res="The attack based on these features would be successful."
-            elif result ==0:
-                res="The attack based on these features would NOT be successful."
+            if result == 1:
+                res = "The attack based on these features would be successful."
+            elif result == 0:
+                res = "The attack based on these features would NOT be successful."
         except:
-            res="The attack based on these features is non predictable."
-           
-        return render_template('predict.html',status=res,map_var=map_var)
+            res = "The attack based on these features is non predictable."
+
+        return render_template('predict.html', status=res, map_var=map_var)
 
     return render_template('predict.html')
 
