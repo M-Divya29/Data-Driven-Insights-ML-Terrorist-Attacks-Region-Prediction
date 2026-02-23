@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="og:title" content="Terrorist Attack Prediction">
+  <meta name="author" content="Venkata Sreeram">
+  <meta name="og:image" content="static/logo1.png">
+  <meta name="Keywords" content="Flask, Machine Learning, Deep Learning, Artificial Intelligence, AI, ML,DL, Web Development">
+  <meta name="description" content="A Machine Learning and Deep Learning based webapp for Terrorist Attack Prediction.">
+  <title>Terrorist Attack Prediction</title>
+  <link rel="icon" href="{{ url_for('static', filename = 'logo1.png') }}" type="image/icon type">
+  
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    :root {
+      --primary-color: #e63946;
+      --secondary-color: #1d3557;
+      --accent-color: #a8dadc;
+      --dark-color: #0b132b;
+      --light-color: #f1faee;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9)), 
+                  url('https://img.freepik.com/premium-vector/terrorism-armed-terrorist-group-black-mask-hold-weapon-machine-gun-attack-city_48369-12083.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: var(--light-color);
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background-color: rgba(13, 27, 42, 0.95) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .navbar-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    
+    .nav-link {
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+      color: var(--primary-color) !important;
+      transform: translateY(-2px);
+    }
+    
+    .main-container {
+      margin-top: 80px;
+      margin-bottom: 50px;
+      animation: fadeIn 0.8s ease-out;
+    }
+    
+    .form-card {
+      background: rgba(29, 53, 87, 0.85);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(168, 218, 220, 0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .form-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+    
+    .form-title {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--primary-color);
+      text-shadow: 0 2px 4px rgb(255, 255, 255);
+      margin-bottom: 20px;
+    }
+    
+    .form-subtitle {
+      color: var(--accent-color);
+      margin-bottom: 30px;
+    }
+    
+    .form-control, .form-control:focus {
+      background-color: rgb(255, 255, 255);
+      border: 1px solid rgba(255, 255, 255, 0.832);
+      
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(230, 57, 70, 0.25);
+      background-color: rgba(241, 250, 238, 0.15);
+    }
+    
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23a8dadc' d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 16px 12px;
+    }
+    
+    label {
+      color: var(--accent-color);
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .btn-predict {
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 0;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+    }
+    
+    .btn-predict:hover {
+      background-color: #c1121f;
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(230, 57, 70, 0.6);
+    }
+    
+    .btn-predict:active {
+      transform: translateY(1px);
+    }
+    
+    .icon-container {
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+    
+    .form-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(230, 57, 70, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--primary-color);
+      box-shadow: 0 5px 15px rgba(229, 4, 4, 0.3);
+    }
+    
+    .form-icon i {
+      font-size: 40px;
+      color: var(--primary-color);
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .input-group-prepend .input-group-text {
+      background-color: rgba(230, 57, 70, 0.2);
+      border: 1px solid rgba(168, 218, 220, 0.3);
+      color: var(--accent-color);
+    }
+    
+    .form-section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed rgba(168, 218, 220, 0.3);
+    }
+    
+    .form-section-title {
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-section-title i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">
+        <i class="fas fa-shield-alt mr-2"></i>Terrorist Attack Prediction
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('fetalPage') }}">
+              <i class="fas fa-bullseye mr-1"></i>Prediction
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">
+              <i class="fas fa-sign-out-alt mr-1"></i>Logout
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container main-container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="form-card p-4 p-md-5">
+          <div class="text-center">
+            <div class="icon-container mx-auto">
+              <div class="form-icon">
+                <i class="fas fa-bullseye"></i>
+              </div>
+            </div>
+            <h1 class="form-title animate__animated animate__fadeIn">TERRORIST ATTACK PREDICTION</h1>
+            <h4 class="form-subtitle animate__animated animate__fadeIn animate__delay-1s">
+              <i class="fas fa-info-circle mr-2"></i>Enter the attack details for prediction
+            </h4>
+          </div>
+          
+          <form class="form-horizontal" action="{{ url_for('predictPage') }}" method="POST">
+            <!-- Date Section -->
+            <div class="form-section">
+              <h5 class="form-section-title">
+                <i class="far fa-calendar-alt"></i>Date Information
+              </h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="year"><i class="far fa-calendar mr-2"></i>Year</label>
+                    <div class="input-group">
+                      <input class="form-control" min="2000" max="2050" type="number" name="year" placeholder="Year" required>
+                      <div class="input-group-append">
+                        <span class="input-group-text"><i class="fas fa-history"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="month"><i class="far fa-calendar-check mr-2"></i>Month</label>
+                    <div class="input-group">
+                      <input class="form-control" type="number" min="1" max="12" name="month" placeholder="Month" required>
+                      <div class="input-group-append">
+                        <span class="input-group-text"><i class="fas fa-calendar-week"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="date"><i class="fas fa-calendar-day mr-2"></i>Date</label>
+                    <div class="input-group">
+                      <input class="form-control" type="number" min="1" max="31" name="date" placeholder="Date" required>
+                      <div class="input-group-append">
+                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attack Details Section -->
+            <div class="form-section">
+              <h5 class="form-section-title">
+                <i class="fas fa-crosshairs"></i>Attack Details
+              </h5>
+              
+              <div class="row">
+               
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="location"><i class="fas fa-clone mr-2"></i>Attack Location</label>
+                    <select name="location" id="location" class="form-control">
+                      <option value="13.197975,77.707314">Bangalore Airport</option>
+                      <option value="12.975266,77.572849">KSR Bangalore</option>
+                      <option value="12.977495,77.572455">Majestic Bangalore</option>
+                      <option value="12.303429,76.658014">Mysore Palace</option>
+                      <option value="12.933849,77.624302">Koramangala</option>
+                      <option value="12.933849,77.624302">Koramangala</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="tolocation"><i class="fas fa-clone mr-2"></i>Our Location</label>
+                    <select name="tolocation" id="tolocation" class="form-control">
+                      <option value="13.197975,77.707314">Bangalore Airport</option>
+                      <option value="12.975266,77.572849">KSR Bangalore</option>
+                      <option value="12.977495,77.572455">Majestic Bangalore</option>
+                      <option value="12.303429,76.658014">Mysore Palace</option>
+                      <option value="12.933849,77.624302">Koramangala</option>
+                      <option value="12.933849,77.624302">Koramangala</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="multiple"><i class="fas fa-clone mr-2"></i>Multiple</label>
+                    <select name="multiple" id="multiple" class="form-control">
+                      <option value="1">Yes</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="attack"><i class="fas fa-fire mr-2"></i>Attack Type</label>
+                    <select name="attack" id="attack" class="form-control">
+                      <option value="1">Assassination</option>
+                      <option value="2">Armed Assault</option>
+                      <option value="3">Bombing/Explosion</option>
+                      <option value="4">Hijacking</option>
+                      <option value="5">Hostage (Barricade)</option>
+                      <option value="6">Hostage (Kidnapping)</option>
+                      <option value="7">Infrastructure Attack</option>
+                      <option value="8">Unarmed Assault</option>
+                      <option value="9">Unknown</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Section -->
+            <div class="form-section">
+              <h5 class="form-section-title">
+                <i class="fas fa-bullseye mr-2"></i>Target Information
+              </h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="target"><i class="fas fa-crosshairs mr-2"></i>Target Type</label>
+                    <select name="target" id="target" class="form-control">
+                      <option value="1">Business</option>
+                      <option value="2">Government (General)</option>
+                      <option value="3">Police</option>
+                      <option value="4">Military</option>
+                      <option value="5">Abortion Related</option>
+                      <option value="6">Airports & Aircraft</option>
+                      <option value="7">Government (Diplomatic)</option>
+                      <option value="8">Educational Institution</option>
+                      <option value="9">Food or Water Supply</option>
+                      <option value="10">Journalists & Media</option>
+                      <option value="11">Maritime</option>
+                      <option value="12">NGO</option>
+                      <option value="13">Other</option>
+                      <option value="14">Private Citizens & Property</option>
+                      <option value="15">Religious Figures/Institutions</option>
+                      <option value="16">Telecommunication</option>
+                      <option value="17">Terrorists/Non-State Militia</option>
+                      <option value="18">Tourists</option>
+                      <option value="19">Transportation</option>
+                      <option value="20">Unknown</option>
+                      <option value="21">Utilities</option>
+                      <option value="22">Violent Political Party</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="ind"><i class="fas fa-user mr-2"></i>Individual</label>
+                    <select name="ind" id="ind" class="form-control">
+                      <option value="1">Group/Organization</option>
+                      <option value="0">Not Group/Organization</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="casualties"><i class="fas fa-user-injured mr-2"></i>Casualties</label>
+                    <div class="input-group">
+                      <input class="form-control" type="number" name="casualties" placeholder="Casualties" required>
+                      <div class="input-group-append">
+                        <span class="input-group-text"><i class="fas fa-heartbeat"></i></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weapon Section -->
+            <div class="form-section">
+              <h5 class="form-section-title">
+                <i class="fas fa-gun mr-2"></i>Weapon Information
+              </h5>
+              <div class="row justify-content-center">
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <label for="weapon"><i class="fas fa-bomb mr-2"></i>Weapon Type</label>
+                    <select name="weapon" id="weapon" class="form-control">
+                      <option value="1">Biological</option>
+                      <option value="2">Chemical</option>
+                      <option value="3">Radiological</option>
+                      <option value="5">Firearms</option>
+                      <option value="6">Explosives</option>
+                      <option value="7">Fake Weapons</option>
+                      <option value="8">Incendiary</option>
+                      <option value="9">Melee</option>
+                      <option value="10">Vehicle</option>
+                      <option value="11">Sabotage Equipment</option>
+                      <option value="12">Other</option>
+                      <option value="13">Unknown</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-predict btn-block">
+              <i class="fas fa-chart-line mr-2"></i>PREDICT ATTACK
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  
+  <script>
+    // Add animation to form elements on scroll
+    $(document).ready(function() {
+      $('.form-group').each(function(i) {
+        $(this).delay(i * 100).animate({
+          opacity: 1,
+          marginTop: 0
+        }, 400);
+      });
+      
+      // Smooth scroll for anchor links
+      $('a[href^="#"]').on('click', function(event) {
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+          event.preventDefault();
+          $('html, body').stop().animate({
+            scrollTop: target.offset().top - 70
+          }, 1000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

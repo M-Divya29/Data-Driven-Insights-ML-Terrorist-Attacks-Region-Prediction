@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pkl
+*.db
+~$*
+.vscode/
+new.pkl
+NOTEBOOK_FILES/globalterrorismdb.csv
+*.xlsx
