@@ -13,7 +13,15 @@ app = Flask(__name__)
 import joblib
 
 # Load the trained model from the file
-model_path = os.path.join(os.path.dirname(__file__), 'model', 'last.pkl')
+# model_path = os.path.join(os.path.dirname(__file__), 'model', 'last.pkl')
+model_path = "model/last.pkl"
+
+if not os.path.exists(model_path):
+    os.makedirs("model", exist_ok=True)
+    url = "https://drive.google.com/uc?export=download&id=1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON"
+    r = requests.get(url)
+    with open(model_path, "wb") as f:
+        f.write(r.content)
 rfc = joblib.load(model_path)
     
 api_key = os.environ.get("WEATHER_API_KEY")
