@@ -2,18 +2,21 @@ from flask import Flask, render_template, request, flash, redirect
 import sqlite3
 import pickle
 import numpy as np
+import os
 import requests
 from RouteMap import GetMap
 dsatm=[12.825251, 77.514417]
+
 
 app = Flask(__name__)
 
 import joblib
 
 # Load the trained model from the file
-rfc = joblib.load('model/last.pkl')
+model_path = os.path.join(os.path.dirname(__file__), 'model', 'last.pkl')
+rfc = joblib.load(model_path)
     
-api_key = '20f1082365514acfa4c122643241604'
+api_key = os.environ.get("WEATHER_API_KEY")
 
 def get_weather(api_key, location):
     print("ENTERED API")
@@ -44,8 +47,8 @@ def userlog():
         name = request.form['name']
         password = request.form['password']
 
-        query = "SELECT name, password FROM user WHERE name = '"+name+"' AND password= '"+password+"'"
-        cursor.execute(query)
+        query = "SELECT name, password FROM user WHERE name = ? AND password = ?"
+        cursor.execute(query, (name, password))
 
         result = cursor.fetchall()
 
@@ -74,7 +77,10 @@ def userreg():
         command = """CREATE TABLE IF NOT EXISTS user(name TEXT, password TEXT, mobile TEXT, email TEXT)"""
         cursor.execute(command)
 
-        cursor.execute("INSERT INTO user VALUES ('"+name+"', '"+password+"', '"+mobile+"', '"+email+"')")
+        cursor.execute(
+    "INSERT INTO user VALUES (?, ?, ?, ?)",
+    (name, password, mobile, email)
+)
         connection.commit()
 
         return render_template('index.html', msg='Successfully Registered')
@@ -117,7 +123,19 @@ def predictPage():
         map_var = GetMap(coord,tocoord)
 
         try:
-            data = np.array([[year, month, date, lat, long, multiple, attack,target,ind,weapon,casualties]])
+            data = np.array([[ 
+                int(year),
+                int(month),
+                int(date),
+                float(lat),
+                float(long),
+                int(multiple),
+                int(attack),
+                int(target),
+                int(ind),
+                int(weapon),
+                int(casualties)
+            ]])
             my_prediction = rfc.predict(data)
             result = my_prediction[0]
             
@@ -133,4 +151,4 @@ def predictPage():
     return render_template('predict.html')
 
 if __name__ == '__main__':
-	app.run(debug = True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
