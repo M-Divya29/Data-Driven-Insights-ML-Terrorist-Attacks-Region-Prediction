@@ -15,18 +15,31 @@ model_path = "model/last.pkl"
 os.makedirs("model", exist_ok=True)
 
 # Google Drive direct download link
-gdrive_url = "https://drive.google.com/uc?export=download&id=1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON"
+def download_from_drive(file_id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+    session = requests.Session()
 
-# Download the model if it doesn't exist
+    response = session.get(URL, params={'id': file_id}, stream=True)
+
+    token = None
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            token = value
+
+    if token:
+        params = {'id': file_id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(32768):
+            if chunk:
+                f.write(chunk)
+
+# Download model if not exists
 if not os.path.exists(model_path):
-    print("Model not found. Downloading from Google Drive...")
-    r = requests.get(gdrive_url)
-    if r.status_code == 200:
-        with open(model_path, "wb") as f:
-            f.write(r.content)
-        print("Model downloaded successfully.")
-    else:
-        raise Exception(f"Failed to download model. Status code: {r.status_code}")
+    print("Downloading model from Google Drive...")
+    download_from_drive("1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON", model_path)
+    print("Download complete.")
 
 # Load the trained model
 rfc = joblib.load(model_path)
