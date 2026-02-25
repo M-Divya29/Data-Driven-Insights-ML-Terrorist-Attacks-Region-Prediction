@@ -120,6 +120,9 @@ https://drive.google.com/file/d/1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON/view?usp=shari
 
 ### Dropbox (Direct Download)
 https://www.dropbox.com/scl/fi/i48njjh7la8i7dvygv5j2/last.pkl?rlkey=pw8hrowbugyzlmc7s84wp4j4w&st=0pn9gty4&dl=0
+
+or
+
 https://www.dropbox.com/s/i48njjh7la8i7dvygv5j2/last.pkl?dl=1
 
 The application automatically downloads the model if it does not exist locally.
