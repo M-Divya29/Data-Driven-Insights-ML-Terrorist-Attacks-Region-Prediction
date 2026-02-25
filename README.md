@@ -107,7 +107,7 @@ https://www.dropbox.com/s/i48njjh7la8i7dvygv5j2/last.pkl?dl=1
 
 ### 1️⃣ Clone Repository
 
-```bash
+
 git clone https://github.com/M-Divya29/Data-Driven-Insights-ML-Terrorist-Attacks-Region-Prediction.git
 cd Data-Driven-Insights-ML-Terrorist-Attacks-Region-Prediction
 2️⃣ Create Virtual Environment
