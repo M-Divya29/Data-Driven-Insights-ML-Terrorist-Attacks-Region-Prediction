@@ -6,44 +6,50 @@ import os
 import requests
 from RouteMap import GetMap
 
+# -----------------------------
+# BASIC CONFIG
+# -----------------------------
+app = Flask(__name__)
 dsatm = [12.825251, 77.514417]
 
-app = Flask(__name__)
-
-# Path to store the model
+# -----------------------------
+# MODEL CONFIG (Dropbox Hosting)
+# -----------------------------
 model_path = "model/last.pkl"
 os.makedirs("model", exist_ok=True)
 
-# Google Drive direct download link
-def download_from_drive(file_id, destination):
-    URL = "https://docs.google.com/uc?export=download"
-    session = requests.Session()
+dropbox_url = "https://dl.dropboxusercontent.com/scl/fi/i48njjh7la8i7dvygv5j2/last.pkl?rlkey=pw8hrowbugyzlmc7s84wp4j4w"
 
-    response = session.get(URL, params={'id': file_id}, stream=True)
+if not os.path.exists(model_path):
+    print("Downloading model from Dropbox...")
 
-    token = None
-    for key, value in response.cookies.items():
-        if key.startswith('download_warning'):
-            token = value
+    response = requests.get(dropbox_url, stream=True)
 
-    if token:
-        params = {'id': file_id, 'confirm': token}
-        response = session.get(URL, params=params, stream=True)
+    if response.status_code != 200:
+        raise Exception("Failed to download model from Dropbox.")
 
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(32768):
+    with open(model_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
             if chunk:
                 f.write(chunk)
 
-# Download model if not exists
-if not os.path.exists(model_path):
-    print("Downloading model from Google Drive...")
-    download_from_drive("1QceHdIh6PGpQdNZBSP6bwMDuvqOhOiON", model_path)
-    print("Download complete.")
+    # Validate file size to avoid corrupted HTML downloads
+    if os.path.getsize(model_path) < 1000000:
+        raise Exception("Downloaded file is too small. Possible corruption.")
 
-# Load the trained model
-rfc = joblib.load(model_path)
+    print("Model download complete.")
 
+# Load model safely
+try:
+    rfc = joblib.load(model_path)
+    print("Model loaded successfully.")
+except Exception as e:
+    print("Error loading model:", e)
+    raise e
+
+# -----------------------------
+# WEATHER API (Optional)
+# -----------------------------
 api_key = os.environ.get("WEATHER_API_KEY")
 
 def get_weather(api_key, location):
@@ -52,106 +58,140 @@ def get_weather(api_key, location):
     if response.status_code == 200:
         data = response.json()
         return data['location']['lat'], data['location']['lon']
-    else:
-        return None
+    return None
 
+
+# -----------------------------
+# ROUTES
+# -----------------------------
 @app.route('/')
 def home():
     return render_template('home.html')
 
+
 @app.route('/index')
 def index():
     return render_template('index.html')
+
 
 @app.route('/userlog', methods=['GET', 'POST'])
 def userlog():
     if request.method == 'POST':
         connection = sqlite3.connect('user_data.db')
         cursor = connection.cursor()
+
         name = request.form['name']
         password = request.form['password']
-        cursor.execute("SELECT name, password FROM user WHERE name = ? AND password = ?", (name, password))
+
+        cursor.execute("SELECT name, password FROM user WHERE name=? AND password=?",
+                       (name, password))
         result = cursor.fetchall()
         connection.close()
+
         if result:
             return render_template('fetal.html')
         else:
-            return render_template('index.html', msg='Sorry, Incorrect Credentials Provided, Try Again')
+            return render_template('index.html',
+                                   msg='Sorry, Incorrect Credentials Provided, Try Again')
+
     return render_template('index.html')
+
 
 @app.route('/userreg', methods=['GET', 'POST'])
 def userreg():
     if request.method == 'POST':
         connection = sqlite3.connect('user_data.db')
         cursor = connection.cursor()
+
         name = request.form['name']
         password = request.form['password']
         mobile = request.form['phone']
         email = request.form['email']
+
         cursor.execute("""CREATE TABLE IF NOT EXISTS user(
                           name TEXT, password TEXT, mobile TEXT, email TEXT)""")
-        cursor.execute("INSERT INTO user VALUES (?, ?, ?, ?)", (name, password, mobile, email))
+
+        cursor.execute("INSERT INTO user VALUES (?, ?, ?, ?)",
+                       (name, password, mobile, email))
+
         connection.commit()
         connection.close()
+
         return render_template('index.html', msg='Successfully Registered')
+
     return render_template('index.html')
+
 
 @app.route('/logout')
 def logout():
     return render_template('index.html')
 
-@app.route("/fetalPage", methods=['GET', 'POST'])
+
+@app.route('/fetalPage', methods=['GET', 'POST'])
 def fetalPage():
     return render_template('fetal.html')
 
-@app.route("/predict", methods=['POST', 'GET'])
+
+@app.route('/predict', methods=['POST', 'GET'])
 def predictPage():
     if request.method == 'POST':
-        year = request.form['year']
-        month = request.form['month']
-        date = request.form['date']
-        location = request.form['location']
-        tolocation = request.form['tolocation']
-
-        coord = location.split(',')
-        tocoord = tolocation.split(',')
-        lat, long = coord[0], coord[1]
-
-        multiple = request.form['multiple']
-        attack = request.form['attack']
-        target = request.form['target']
-        ind = request.form['ind']
-        casualties = request.form['casualties']
-        weapon = request.form['weapon']
-
-        map_var = GetMap(coord, tocoord)
-
         try:
-            data = np.array([[ 
-                int(year),
-                int(month),
-                int(date),
-                float(lat),
-                float(long),
-                int(multiple),
-                int(attack),
-                int(target),
-                int(ind),
-                int(weapon),
-                int(casualties)
-            ]])
-            my_prediction = rfc.predict(data)
-            result = my_prediction[0]
-            if result == 1:
-                res = "The attack based on these features would be successful."
-            elif result == 0:
-                res = "The attack based on these features would NOT be successful."
-        except:
-            res = "The attack based on these features is non predictable."
+            year = int(request.form['year'])
+            month = int(request.form['month'])
+            date = int(request.form['date'])
 
-        return render_template('predict.html', status=res, map_var=map_var)
+            location = request.form['location']
+            tolocation = request.form['tolocation']
+
+            coord = location.split(',')
+            tocoord = tolocation.split(',')
+
+            lat = float(coord[0])
+            lon = float(coord[1])
+
+            multiple = int(request.form['multiple'])
+            attack = int(request.form['attack'])
+            target = int(request.form['target'])
+            ind = int(request.form['ind'])
+            casualties = int(request.form['casualties'])
+            weapon = int(request.form['weapon'])
+
+            map_var = GetMap(coord, tocoord)
+
+            data = np.array([[ 
+                year,
+                month,
+                date,
+                lat,
+                lon,
+                multiple,
+                attack,
+                target,
+                ind,
+                weapon,
+                casualties
+            ]])
+
+            prediction = rfc.predict(data)[0]
+
+            if prediction == 1:
+                result_text = "The attack based on these features would be successful."
+            else:
+                result_text = "The attack based on these features would NOT be successful."
+
+        except Exception:
+            result_text = "The attack based on these features is non predictable."
+            map_var = None
+
+        return render_template('predict.html',
+                               status=result_text,
+                               map_var=map_var)
 
     return render_template('predict.html')
 
+
+# -----------------------------
+# RENDER COMPATIBLE ENTRY POINT
+# -----------------------------
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
